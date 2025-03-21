@@ -1,0 +1,19 @@
+#!/bin/sh
+
+stagedJavaFiles=$(git diff --staged -z --name-only -- '*.java' | xargs -0)
+
+if [ -z "$stagedJavaFiles" ]; then
+    echo "No staged Java files found. Ignoring formatting of code."
+else
+    echo "Staged Java files: $stagedJavaFiles"
+    echo "Formatting code..."
+    "@java.home@/bin/java" --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
+                           --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED \
+                           --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
+                           --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
+                           --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
+                           --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED \
+                           -jar "@project.basedir@/.git/hooks/google-java-format-@googlejavaformat.version@-all-deps.jar" \
+                           --replace $stagedJavaFiles
+    git add $stagedJavaFiles
+fi
