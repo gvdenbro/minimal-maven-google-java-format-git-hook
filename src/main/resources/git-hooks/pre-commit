@@ -16,4 +16,11 @@ else
                            -jar "@project.basedir@/.git/hooks/google-java-format-@googlejavaformat.version@-all-deps.jar" \
                            --replace $stagedJavaFiles
     git add $stagedJavaFiles
+    echo "Checking if formatting would result in empty commit."
+    if git diff --cached --quiet; then
+        echo "Would result in empty commit. Aborting."
+        exit 1
+    else
+        echo "Changes to commit. Proceeding..."
+    fi
 fi
